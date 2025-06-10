@@ -205,7 +205,13 @@ export default class User {
                 }
             );
 
-            await UserModel.deleteOne({ _id: userId });
+            const deletedUser = await UserModel.deleteOne({ _id: userId });
+
+            if (deletedUser.deletedCount <= 0)
+                return next(
+                    Errors.notFound(`User with ID '${userId}' not found`)
+                );
+
             next(Success.noContent(res, "User Deleted"));
         } catch (err) {
             next(Errors.internalServerError());
