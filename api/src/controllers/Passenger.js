@@ -3,7 +3,6 @@ import { USER_ROLES } from "../utils/CONSTANTS.js";
 import Errors from "../utils/responses/Error.js";
 import Success from "../utils/responses/Success.js";
 import { camelToTitleCase } from "../utils/utils.js";
-import { validateObjectId } from "../utils/validation.js";
 
 export default class User {
     create = async (req, res, next) => {
@@ -31,7 +30,7 @@ export default class User {
 
             const users = await UserModel.create(newUser);
 
-            next(Success.created(res, "User Created", users));
+            next(Success.ok(res, "User Created", users));
         } catch (err) {
             console.error("SERVER ERROR: ");
             console.log(err, "\n");
@@ -70,12 +69,7 @@ export default class User {
             const userId = req.params.id;
 
             if (userId) {
-                if (!validateObjectId(userId))
-                    return next(Errors.badRequest("Invalid User ID"));
-
                 const user = await UserModel.find({ _id: userId }, { __v: 0 });
-                if (!user) return next(Errors.notFound("User not found"));
-
                 next(Success.ok(res, "User Retrieved", user));
             }
 
@@ -83,17 +77,17 @@ export default class User {
             next(Success.ok(res, "Users Retrieved", users));
         } catch (err) {
             console.error("!!!!!! SERVER ERROR: ", err);
-            next(Errors.internalServerError());
+            next(
+                res
+                    .status(500)
+                    .send("Unable to process request, please try again!")
+            );
         }
     };
 
     update = async (req, res, next) => {
         try {
             const userId = req.params.id;
-
-            if (!validateObjectId(userId))
-                return next(Errors.badRequest("Invalid Flight ID"));
-
             const newUser = req.body;
             const currUser = req.headers.currUser;
 

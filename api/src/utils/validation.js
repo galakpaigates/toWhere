@@ -1,4 +1,13 @@
-import { USER_ROLES } from "./CONSTANTS.js";
+import { Types } from "mongoose";
+import {
+    AIRPORTS,
+    COUNTRIES,
+    MAX_CAPACITY,
+    MAX_FLIGHT_DURATION,
+    MIN_CAPACITY,
+    MIN_FLIGHT_DURATION,
+    USER_ROLES,
+} from "./CONSTANTS.js";
 
 /**
  * Checks if the given msisdn is valid or not.
@@ -67,8 +76,38 @@ export const emailValidation = (email, entity, data) => {
     }
 };
 
-export function validateUserRole(role) {
+export const validateUserRole = (role) => {
     if (!role) return true;
 
     return USER_ROLES.includes(role);
-}
+};
+
+export const validateNationality = (nationality) => {
+    return COUNTRIES.some(
+        (country) =>
+            country.nationality.split(" or ").includes(nationality.trim()) ||
+            country.nationality.split(", ").includes(nationality.trim())
+    );
+};
+
+export const validateAirportCode = (code) => {
+    return AIRPORTS.some(
+        (airport) => airport.code == code.toUpperCase().trim()
+    );
+};
+
+export const validateCountry = (country) => {
+    return COUNTRIES.some((c) => c.en_short_name == country.trim());
+};
+
+export const validateFlightDuration = (duration) => {
+    return duration >= MIN_FLIGHT_DURATION && duration <= MAX_FLIGHT_DURATION;
+};
+
+export const validateCapacity = (capacity) => {
+    return capacity >= MIN_CAPACITY && capacity <= MAX_CAPACITY;
+};
+
+export const validateObjectId = (id) => {
+    return Types.ObjectId.isValid(id);
+};
